@@ -3,14 +3,24 @@
   "version": "0.0.0",
   "description": "",
   "type": "module",
+  "main": "./dest/index.umd.cjs",
+  "module": "./dest/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.umd.cjs"
+    },
+    "./style.css": "./dist/style.css"
+  },
+  "types": "./dist/index.d.ts",
   "scripts": {
     "build": "vite build && vue-tsc --emitDeclarationOnly",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["misskey"],
+  "author": "FineArchs",
+  "license": "MIT",
   "dependencies": {
     "mfm-js": "^0.24.0",
     "vue": "^3.3.13"
