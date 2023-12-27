@@ -1,0 +1,73 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+
+  dist:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4.0.1
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - uses: actions/cache@v3
+        id: cache
+        with:
+          path: node_modules
+          key: node_modules-${{ hashFiles('package-lock.json') }}-18
+      - run: pnpm i --frozen-lockfile
+        if: steps.cache.outputs.cache-hit != 'true'
+      - name: build
+        run: pnpm run build
+      - name: distribution
+        run: |
+          LASTCOMMIT=$(git log --format="%h" -n 1)
+          REMOTE=$(git remote get-url origin)
+          rm .gitignore
+          mv .npmignore .gitignore
+          rm -rf .git
+          git init -b dist
+          gh auth setup-git
+          git remote add origin $REMOTE
+          if git fetch origin dist
+          then
+            git update-ref refs/heads/dist origin/dist
+            git symbolic-ref HEAD refs/heads/dist
+          fi
+          git config --global user.email "cicada1003@gmail.com"
+          git config --global user.name "FineArchs"
+          git add .
+          if [[ $(git diff --cached) ]]
+          then
+            git commit -m"dist: ${LASTCOMMIT}"
+            git push -u origin dist
+          fi
+      
+  storybook:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4.0.1
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - uses: actions/cache@v3
+        id: cache
+        with:
+          path: node_modules
+          key: node_modules-${{ hashFiles('package-lock.json') }}-18
+      - run: pnpm i --frozen-lockfile
+        if: steps.cache.outputs.cache-hit != 'true'
+      - run: pnpm run build-storybook
+      - uses: peaceiris/actions-gh-pages@v3.9.3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./storybook-static
