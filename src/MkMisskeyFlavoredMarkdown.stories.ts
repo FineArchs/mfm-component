@@ -64,6 +64,7 @@ export const Default = {
 		layout: 'centered',
 	},
 } satisfies StoryObj<typeof Mfm>;
+
 export const Plain = {
 	...Default,
 	args: {
@@ -71,6 +72,7 @@ export const Plain = {
 		plain: true,
 	},
 } satisfies StoryObj<typeof Mfm>;
+
 export const Nowrap = {
 	...Default,
 	args: {
@@ -78,6 +80,7 @@ export const Nowrap = {
 		nowrap: true,
 	},
 } satisfies StoryObj<typeof Mfm>;
+
 export const IsNotNote = {
 	...Default,
 	args: {

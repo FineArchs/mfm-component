@@ -53,17 +53,22 @@ type MfmEvents = {
 // eslint-disable-next-line import/no-default-export
 export default function(props: MfmProps, context: SetupContext<MfmEvents>) {
 	const isNote = props.isNote ?? true;
-	const shouldNyaize = props.nyaize ? props.nyaize === 'respect' ? props.author?.isCat : false : false;
+	// const shouldNyaize = props.nyaize ? props.nyaize === 'respect' ? props.author?.isCat : false : false;
+  const shouldNyaize = false;
 
 	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 	if (props.text == null || props.text === '') return;
 
 	const rootAst = props.parsedNodes ?? (props.plain ? mfm.parseSimple : mfm.parse)(props.text);
 
-	const validTime = (t: string | null | undefined) => {
-		if (t == null) return null;
+	const validTime = (t: unknown) => {
+		if (typeof t !== 'string') return null;
 		return t.match(/^[0-9.]+s$/) ? t : null;
 	};
+
+  const validStr = (t: unknown) => {
+		return (typeof t === 'string') ? t : null;
+  }
 
 	// const useAnim = defaultStore.state.advancedMfm && defaultStore.state.animatedMfm;
   const useAnim = !!props.useAnim;
@@ -225,14 +230,14 @@ export default function(props: MfmProps, context: SetupContext<MfmEvents>) {
 						break;
 					}
 					case 'rotate': {
-						const degrees = parseFloat(token.props.args.deg ?? '90');
+						const degrees = parseFloat(validStr(token.props.args.deg) ?? '90');
 						style = `transform: rotate(${degrees}deg); transform-origin: center center;`;
 						break;
 					}
 					case 'position': {
 						// if (!defaultStore.state.advancedMfm) break;
-						const x = parseFloat(token.props.args.x ?? '0');
-						const y = parseFloat(token.props.args.y ?? '0');
+						const x = parseFloat(validStr(token.props.args.x) ?? '0');
+						const y = parseFloat(validStr(token.props.args.y) ?? '0');
 						style = `transform: translateX(${x}em) translateY(${y}em);`;
 						break;
 					}
@@ -243,21 +248,21 @@ export default function(props: MfmProps, context: SetupContext<MfmEvents>) {
 							break;
 						}
             */
-						const x = Math.min(parseFloat(token.props.args.x ?? '1'), 5);
-						const y = Math.min(parseFloat(token.props.args.y ?? '1'), 5);
+						const x = Math.min(parseFloat(validStr(token.props.args.x) ?? '1'), 5);
+						const y = Math.min(parseFloat(validStr(token.props.args.y) ?? '1'), 5);
 						style = `transform: scale(${x}, ${y});`;
 						scale = scale * Math.max(x, y);
 						break;
 					}
 					case 'fg': {
-						let color = token.props.args.color;
-						if (!/^[0-9a-f]{3,6}$/i.test(color)) color = 'f00';
+						let color = validStr(token.props.args.color);
+						if (!color || !/^[0-9a-f]{3,6}$/i.test(color)) color = 'f00';
 						style = `color: #${color};`;
 						break;
 					}
 					case 'bg': {
-						let color = token.props.args.color;
-						if (!/^[0-9a-f]{3,6}$/i.test(color)) color = 'f00';
+						let color = validStr(token.props.args.color);
+						if (!color || !/^[0-9a-f]{3,6}$/i.test(color)) color = 'f00';
 						style = `background-color: #${color};`;
 						break;
 					}
@@ -273,7 +278,7 @@ export default function(props: MfmProps, context: SetupContext<MfmEvents>) {
 							const rt = token.children.at(-1)!;
 							let text = rt.type === 'text' ? rt.props.text : '';
 							if (!disableNyaize && shouldNyaize) {
-								text = doNyaize(text);
+								// text = doNyaize(text);
 							}
 							return h('ruby', {}, [...genEl(token.children.slice(0, token.children.length - 1), scale), h('rt', text.trim())]);
 						}
@@ -288,18 +293,20 @@ export default function(props: MfmProps, context: SetupContext<MfmEvents>) {
 								class: 'ti ti-clock',
 								style: 'margin-right: 0.25em;',
 							}),
+              /*
 							h(MkTime, {
 								key: Math.random(),
 								time: unixtime * 1000,
 								mode: 'detail',
 							}),
+              */
 						]);
 					}
 					case 'clickable': {
 						return h('span', { onClick(ev: MouseEvent): void {
 							ev.stopPropagation();
 							ev.preventDefault();
-							context.emit('clickEv', token.props.args.ev ?? '');
+							context.emit('clickEv', validStr(token.props.args.ev) ?? '');
 						} }, genEl(token.children, scale));
 					}
 				}
@@ -343,7 +350,7 @@ export default function(props: MfmProps, context: SetupContext<MfmEvents>) {
 					rel: 'nofollow noopener',
 				}, genEl(token.children, scale, true))];
         */
-        return [genEl(token.children, scale, true)];
+        return genEl(token.children, scale, true);
 			}
 
 			case 'mention': {
