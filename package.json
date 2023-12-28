@@ -16,10 +16,15 @@
   "scripts": {
     "build": "vite build && vue-tsc --emitDeclarationOnly",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "chromatic": "npx chromatic --project-token=chpt_28b9f217a462c20"
   },
-  "keywords": ["misskey"],
-  "author": "FineArchs",
+  "keywords": [
+    "misskey"
+  ],
+  "author": {
+    "name": "FineArchs"
+  },
   "license": "MIT",
   "dependencies": {
     "mfm-js": "^0.24.0",
@@ -35,11 +40,14 @@
     "@storybook/vue3-vite": "^7.6.6",
     "@types/node": "^20.10.5",
     "@vitejs/plugin-vue": "^5.0.0",
+    "chromatic": "^10.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "storybook": "^7.6.6",
     "typescript": "^5.3.3",
     "vite": "^5.0.10",
     "vue-tsc": "^1.8.27"
-  }
+  },
+  "readme": "ERROR: No README data found!",
+  "_id": "mfm-component@0.0.0"
 }
